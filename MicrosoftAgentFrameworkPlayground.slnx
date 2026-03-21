@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Microsoft Foundry/">
+    <Project Path="src/1-BasicRAGAgent/1-BasicRAGAgent.csproj" Id="2da62a9e-49c0-4f72-86c6-c143462009a3" />
+    <Project Path="src/2-AgenticFlow/2-AgenticFlow.csproj" Id="9e571ea2-b1ee-4d1d-bc4c-9d4a7e95d11f" />
+    <Project Path="src/3-PostgresChatStore/3-PostgresChatStore.csproj" Id="c810c840-bf47-4bea-8338-ac5c2eea166b" />
+    <Project Path="src/4-PostgresRAG/4-PostgresRAG.csproj" Id="3d87d20b-ef7a-411f-9a2b-788f0de2d6ee" />
+    <Project Path="src/5-AzurePostgresRAG/5-AzurePostgresRAG.csproj" Id="34f8cc7a-65cd-44ee-bbc3-d1ff34c71354" />
+    <Project Path="src/6-SemanticCache/6-SemanticCache.csproj" Id="6b0e9d3c-7cea-491a-8755-6ee41afab425" />
+  </Folder>
+</Solution>
