@@ -15,8 +15,11 @@
 //  Prerequisites:
 //    • FOUNDRY_PROJECT_ENDPOINT  — Microsoft Foundry project endpoint
 //    • AZURE_OPENAI_ENDPOINT     — Azure OpenAI resource endpoint
-//    • (optional) REDIS_CONNECTION_STRING — if not set, a local Redis Stack
-//      container is started automatically via Testcontainers (requires Docker)
+//    • (optional) AZURE_REDIS_ENDPOINT    — Azure Managed Redis endpoint
+//      (e.g. amcagentsdemo.eastus.redis.azure.net:10000); authenticated via
+//      Microsoft Entra ID (AzureCliCredential)
+//    • If not set, a local Redis Stack container is started
+//      automatically via Testcontainers (requires Docker)
 // ============================================================================
 
 using Azure.AI.Agents.Persistent;
@@ -26,6 +29,7 @@ using Azure.Identity;
 using NRedisStack.RedisStackCommands;
 using NRedisStack.Search;
 using NRedisStack.Search.Literals.Enums;
+using Microsoft.Azure.StackExchangeRedis;
 using StackExchange.Redis;
 using System.Runtime.InteropServices;
 using Testcontainers.Redis;
@@ -38,24 +42,43 @@ var foundryEndpoint = Environment.GetEnvironmentVariable("FOUNDRY_PROJECT_ENDPOI
 var openAiEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")
     ?? throw new InvalidOperationException("AZURE_OPENAI_ENDPOINT not set.");
 
-// If no connection string is provided, spin up a local Redis Stack container.
-var redisConnectionString = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING");
+var credential = new AzureCliCredential();
 
 RedisContainer? redisContainer = null;
-if (string.IsNullOrEmpty(redisConnectionString))
+ConnectionMultiplexer redis;
+
+var azureRedisEndpoint = Environment.GetEnvironmentVariable("AZURE_REDIS_ENDPOINT")
+    ?? "amcagentsdemo.eastus.redis.azure.net:10000";
+
+if (!string.IsNullOrEmpty(azureRedisEndpoint))
 {
-    Console.WriteLine("No REDIS_CONNECTION_STRING found — starting local Redis Stack container …");
-    redisContainer = new RedisBuilder()
-        .WithImage("redis/redis-stack-server:latest")
+    var redisOptions = ConfigurationOptions.Parse(azureRedisEndpoint);
+    redisOptions.Ssl = true;
+    redisOptions.DefaultDatabase = 0;
+    redisOptions.AbortOnConnectFail = false;
+    redisOptions.ConnectRetry = 5;
+    redisOptions.ConnectTimeout = 10000;
+    redisOptions.ClientName = "SemanticCacheDemoClient";
+    redisOptions.Proxy = Proxy.Twemproxy;
+    await redisOptions.ConfigureForAzureWithTokenCredentialAsync(credential);
+    redis = await ConnectionMultiplexer.ConnectAsync(redisOptions);
+    Console.WriteLine($"Connected to Azure Managed Redis at {azureRedisEndpoint}");
+}
+else
+{
+    Console.WriteLine("No Redis configuration found — starting local Redis Stack container …");
+    redisContainer = new RedisBuilder("redis/redis-stack-server:latest")
         .Build();
     await redisContainer.StartAsync();
-    redisConnectionString = redisContainer.GetConnectionString();
-    Console.WriteLine($"Redis container started at {redisConnectionString}\n");
+    var containerConnectionString = redisContainer.GetConnectionString();
+    Console.WriteLine($"Redis container started at {containerConnectionString}\n");
+    redis = await ConnectionMultiplexer.ConnectAsync(containerConnectionString);
 }
+
+var db = redis.GetDatabase();
 
 // ── 2. Microsoft Foundry + Embedding client ──────────────────────────────────
 
-var credential      = new AzureCliCredential();
 var projectClient   = new AIProjectClient(new Uri(foundryEndpoint), credential);
 var openAIClient    = new AzureOpenAIClient(new Uri(openAiEndpoint), credential);
 var embeddingClient = openAIClient.GetEmbeddingClient("text-embedding-3-small");
@@ -73,8 +96,6 @@ var session = await agent.CreateSessionAsync();
 
 // ── 3. Redis vector index setup ─────────────────────────────────────────────
 
-var redis = await ConnectionMultiplexer.ConnectAsync(redisConnectionString);
-var db    = redis.GetDatabase();
 var ft    = db.FT();
 
 const string indexName           = "semantic-cache-idx";
@@ -94,13 +115,12 @@ try
             })
             .AddTextField("response"));
 }
-catch (RedisServerException)
+catch (RedisServerException ex) when (ex.Message.Contains("Index already exists"))
 {
     // Index already exists — safe to ignore.
 }
 
 // ── 4. Core helper — check cache or call the LLM ───────────────────────────
-
 async Task<(string Response, string Source)> AskAsync(string question)
 {
     // 4a. Turn the question into a vector embedding.
