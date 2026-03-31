@@ -1,0 +1,53 @@
+@page
+@model FlightsModel
+@{
+    ViewData["Title"] = "Flights";
+}
+
+<h2 class="mb-4">Available Flights</h2>
+
+@if (!Model.Flights.Any())
+{
+    <div class="alert alert-info">No flights available.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Flight</th>
+                    <th>Description</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Duration (h)</th>
+                    <th>Total Seats</th>
+                    <th>Available Seats</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var flight in Model.Flights)
+                {
+                    <tr>
+                        <td><strong>@flight.Name</strong></td>
+                        <td>@flight.Description</td>
+                        <td>@flight.From</td>
+                        <td>@flight.To</td>
+                        <td>@flight.Duration</td>
+                        <td>@flight.TotalSeats</td>
+                        <td>
+                            @if (flight.Seats == 0)
+                            {
+                                <span class="badge bg-danger">Sold out</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">@flight.Seats</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,29 @@
+﻿@page
+@model AssistantModel
+@{
+    ViewData["Title"] = "Flight Assistant";
+}
+<h1>@ViewData["Title"]</h1>
+
+@if (Model.IsLoading)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.AgentAnswer))
+{
+    <div class="alert alert-info" role="alert">
+        @Model.AgentAnswer
+    </div>
+}
+
+<form method="post">
+    <div class="form-group">
+        <label for="userInput">Your Message:</label>
+        <input type="text" class="form-control" id="userInput" name="userInput" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Send</button>
+</form>
