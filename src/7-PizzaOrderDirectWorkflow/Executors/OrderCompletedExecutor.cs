@@ -4,7 +4,7 @@ using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 
-namespace _7_Workflows.Executors;
+namespace _7_PizzaOrderDirectWorkflow.Executors;
 
 [SendsMessage(typeof(string))]
 [YieldsOutput(typeof(string))]

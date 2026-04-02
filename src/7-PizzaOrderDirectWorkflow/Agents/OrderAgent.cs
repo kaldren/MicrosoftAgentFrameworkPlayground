@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace _7_Workflows.Agents;
+namespace _7_PizzaOrderDirectWorkflow.Agents;
 
 internal static class OrderAgent
 {

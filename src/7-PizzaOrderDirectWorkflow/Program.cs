@@ -1,4 +1,4 @@
-﻿using _7_Workflows.Executors;
+﻿using _7_PizzaOrderDirectWorkflow.Executors;
 using Microsoft.Agents.AI.Workflows;
 
 // Workflow to prepare a pizza order and then execute it, and deliver it to the customer.

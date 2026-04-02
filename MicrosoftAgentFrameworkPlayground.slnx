@@ -10,6 +10,6 @@
     <Project Path="src/4-PostgresRAG/4-PostgresRAG.csproj" Id="3d87d20b-ef7a-411f-9a2b-788f0de2d6ee" />
     <Project Path="src/5-AzurePostgresRAG/5-AzurePostgresRAG.csproj" Id="34f8cc7a-65cd-44ee-bbc3-d1ff34c71354" />
     <Project Path="src/6-SemanticCache/6-SemanticCache.csproj" Id="6b0e9d3c-7cea-491a-8755-6ee41afab425" />
-    <Project Path="src/7-Workflows/7-Workflows.csproj" />
+    <Project Path="src/7-PizzaOrderDirectWorkflow/7-PizzaOrderDirectWorkflow.csproj" />
   </Folder>
 </Solution>
