@@ -1,5 +1,5 @@
-﻿using _8_CustomerSupportFanInWorkflow.Agents;
-using _8_CustomerSupportFanInWorkflow.Infrastructure;
+﻿using _8_CustomerSupportFWorkflow.Agents;
+using _8_CustomerSupportFWorkflow.Infrastructure;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Workflows;
 using System;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 
-namespace _8_CustomerSupportFanInWorkflow.Executors;
+namespace _8_CustomerSupportFWorkflow.Executors;
 
 [SendsMessage(typeof(string))]
 internal sealed class ClassificationExecutor : Executor<string>

@@ -16,6 +16,7 @@
 		<PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.0.0-rc4" />
 		<PackageReference Include="Npgsql" Version="10.0.2" />
 		<PackageReference Include="Testcontainers.PostgreSql" Version="4.11.0" />
+		<PackageReference Include="Twilio" Version="7.14.3" />
 	</ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@ using Azure.AI.OpenAI;
 using Azure.Identity;
 using Microsoft.Extensions.AI;
 
-namespace _8_CustomerSupportFanInWorkflow.Agents;
+namespace _8_CustomerSupportFWorkflow.Agents;
 
 internal static class ChatClientFactory
 {
@@ -13,7 +13,9 @@ internal static class ChatClientFactory
 
         var deploymentName = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT_NAME") ?? "gpt-4.1-mini";
 
-        return new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
-            .GetChatClient(deploymentName).AsIChatClient();
+        return new ChatClientBuilder(new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
+            .GetChatClient(deploymentName).AsIChatClient())
+            .UseFunctionInvocation()
+            .Build();
     }
 }
